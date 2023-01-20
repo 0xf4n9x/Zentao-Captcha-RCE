@@ -1,39 +1,33 @@
-before:
-  hooks:
-    - go mod tidy
-
+# This is an example goreleaser.yaml file with some sane defaults.
+# Make sure to check the documentation at http://goreleaser.com
+# https://goreleaser.com/customization/build/
+project_name: '{{ .ProjectName }}'
+gomod:
+  proxy: false
 builds:
-  - env:
-      - CGO_ENABLED=0
+  - env: [CGO_ENABLED=0]
+    binary: '{{ .ProjectName }}'
+    main: ./
+    ldflags:
+      - -s -w -X main.Version={{.Version}}
     goos:
-      - windows
       - linux
+      - windows
       - darwin
     goarch:
       - amd64
       - 386
-      - arm
       - arm64
-
-    ignore:
-      - goos: darwin
-        goarch: '386'
-      - goos: windows
-        goarch: 'arm'
-      - goos: windows
-        goarch: 'arm64'
-
-    binary: '{{ .ProjectName }}'
-    main: main.go
-
-archives:
-  - format: zip
-    name_template: >-
-      {{ .ProjectName }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-
 checksum:
-  algorithm: sha256
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+archives:
+  - files:
+      - none*
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
